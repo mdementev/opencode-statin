@@ -18,15 +18,18 @@ tells the model what to do.
 opencode plugin opencode-statin -g
 ```
 
-Restart opencode. Done.
+Restart opencode to load the plugin.
 
-The two slash commands ship as plain markdown in `commands/`. If opencode does
-not register them automatically after install, copy them into your global
-commands directory:
+opencode does **not** read commands from plugin packages, so also register the
+two slash commands by copying the bundled files into your global commands
+directory:
 
 ```bash
-cp commands/statin.md commands/statin-events.md ~/.config/opencode/commands/
+cp ~/.cache/opencode/node_modules/opencode-statin/commands/*.md ~/.config/opencode/commands/
 ```
+
+From a repo checkout, use `cp commands/*.md ~/.config/opencode/commands/`
+instead. Commands placed in a project's `.opencode/commands/` work too.
 
 ## Usage
 
