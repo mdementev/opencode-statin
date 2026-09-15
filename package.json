@@ -1,0 +1,46 @@
+{
+  "name": "opencode-statin",
+  "version": "0.1.0",
+  "description": "opencode plugin: event telemetry with JSONL log and per-session statistics",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdementev/opencode-statin.git"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "telemetry",
+    "statistics",
+    "events"
+  ],
+  "files": [
+    "plugin/statin.ts",
+    "src/events.ts",
+    "src/store.ts",
+    "src/logfile.ts",
+    "commands/statin.md",
+    "commands/statin-events.md"
+  ],
+  "main": "plugin/statin.ts",
+  "exports": {
+    ".": "./plugin/statin.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "test": "node --test \"src/*.test.ts\""
+  },
+  "engines": {
+    "opencode": ">=1.18.0"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.18.25"
+  },
+  "devDependencies": {
+    "@opencode-ai/sdk": "^1.18.25",
+    "@types/node": "^22.5.0",
+    "typescript": "^5.0.0"
+  }
+}

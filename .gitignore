@@ -1,0 +1,7 @@
+node_modules/
+dist/
+STATUS.md
+notes/
+experiments/
+.DS_Store
+*.log
