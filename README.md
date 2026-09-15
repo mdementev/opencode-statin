@@ -20,16 +20,18 @@ opencode plugin opencode-statin -g
 
 Restart opencode to load the plugin.
 
-opencode does **not** read commands from plugin packages, so also register the
-two slash commands by copying the bundled files into your global commands
-directory:
+`opencode plugin` only installs the module and adds it to your `plugin` config —
+it does **not** copy command files out of the package. So also register the two
+slash commands by copying the bundled files into your global commands directory:
 
 ```bash
 cp ~/.cache/opencode/node_modules/opencode-statin/commands/*.md ~/.config/opencode/commands/
 ```
 
 From a repo checkout, use `cp commands/*.md ~/.config/opencode/commands/`
-instead. Commands placed in a project's `.opencode/commands/` work too.
+instead. opencode scans both `command/` and `commands/`, in the global config
+directory and in a project's `.opencode/`. As an alternative to files, you can
+declare the commands inline under the `command` key of `opencode.json`.
 
 ## Usage
 
