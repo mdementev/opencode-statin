@@ -1,5 +1,7 @@
 # opencode-statin
 
+[![npm version](https://img.shields.io/npm/v/opencode-statin.svg)](https://www.npmjs.com/package/opencode-statin)
+
 Telemetry for your opencode sessions. `opencode-statin` records every event the
 opencode runtime emits — with timestamps — to a JSONL log and keeps per-session
 statistics: messages by role, parts by type, tool calls and durations,
@@ -13,14 +15,18 @@ tells the model what to do.
 ## Install
 
 ```bash
-# npm
 opencode plugin opencode-statin -g
-
-# or locally, straight from this repo
-./scripts/install.sh   # macOS / Linux
 ```
 
 Restart opencode. Done.
+
+The two slash commands ship as plain markdown in `commands/`. If opencode does
+not register them automatically after install, copy them into your global
+commands directory:
+
+```bash
+cp commands/statin.md commands/statin-events.md ~/.config/opencode/commands/
+```
 
 ## Usage
 
