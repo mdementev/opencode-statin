@@ -2,10 +2,11 @@ import type { Plugin } from "@opencode-ai/plugin"
 import type { Event, Part } from "@opencode-ai/sdk"
 import { existsSync, readFileSync } from "node:fs"
 import { homedir } from "node:os"
-import { join } from "node:path"
+import { basename, join } from "node:path"
 import { summarizeEvent } from "../src/events.ts"
 import { JsonlLogger, DEFAULT_MAX_BYTES } from "../src/logfile.ts"
 import { Ring, StatStore } from "../src/store.ts"
+import { DEFAULT_USAGE_TTL_DAYS, UsageStore } from "../src/usage.ts"
 
 const RECENT_EVENTS = 40
 
@@ -14,6 +15,8 @@ export type StatinConfig = {
   maxLogBytes: number
   ringSize: number
   logPartUpdated: boolean
+  eventLog: boolean
+  usageTtlDays: number
 }
 
 function defaultConfig(): StatinConfig {
@@ -22,6 +25,8 @@ function defaultConfig(): StatinConfig {
     maxLogBytes: DEFAULT_MAX_BYTES,
     ringSize: 5000,
     logPartUpdated: false,
+    eventLog: false,
+    usageTtlDays: DEFAULT_USAGE_TTL_DAYS,
   }
 }
 
@@ -50,7 +55,12 @@ export function loadConfig(): StatinConfig {
       ? Math.floor(raw.ringSize)
       : base.ringSize
   const logPartUpdated = raw.logPartUpdated === true
-  return { logDir, maxLogBytes, ringSize, logPartUpdated }
+  const eventLog = raw.eventLog === true
+  const usageTtlDays =
+    typeof raw.usageTtlDays === "number" && raw.usageTtlDays > 0
+      ? Math.floor(raw.usageTtlDays)
+      : base.usageTtlDays
+  return { logDir, maxLogBytes, ringSize, logPartUpdated, eventLog, usageTtlDays }
 }
 
 const isFailed = (metadata: unknown): boolean => {
@@ -59,22 +69,26 @@ const isFailed = (metadata: unknown): boolean => {
   return "error" in meta || meta.status === "error"
 }
 
-export const Statin: Plugin = async () => {
+export const Statin: Plugin = async (input) => {
   const config = loadConfig()
-  const logger = new JsonlLogger(config.logDir, config.maxLogBytes)
+  const logger = config.eventLog ? new JsonlLogger(config.logDir, config.maxLogBytes) : null
+  const usage = new UsageStore(config.logDir, config.usageTtlDays)
   const ring = new Ring(config.ringSize)
   const store = new StatStore()
+  const project = input?.directory ? basename(input.directory) : "(unknown)"
+  const directory = input?.directory
 
   return {
     dispose: async () => {
-      logger.close()
+      usage.save()
+      logger?.close()
     },
     event: async ({ event }: { event: Event }) => {
       try {
         const s = summarizeEvent(event)
         ring.push(s.type, s.text, s.sessionID)
         store.event(event)
-        if (config.logPartUpdated || !s.noisy) {
+        if (logger && (config.logPartUpdated || !s.noisy)) {
           logger.write({ t: Date.now(), type: s.type, sessionID: s.sessionID, text: s.text })
         }
       } catch {
@@ -91,6 +105,7 @@ export const Statin: Plugin = async () => {
     "tool.execute.after": async (input, output) => {
       try {
         store.toolEnd(input.callID, isFailed(output?.metadata))
+        usage.record(project, input.tool, input.args, directory)
       } catch {
         // telemetry must never break the session
       }
@@ -134,10 +149,14 @@ export const Statin: Plugin = async () => {
             const detail = it.text ? ` ${it.text}` : ""
             return `${head}${sess}${detail}`
           })
+          const usageTop = usage.top(project, 10).map(([k, v]) => `${k}=${v}`).join(", ")
           const text = [
             `statin: last ${recent.length} events (ring size ${ring.size})`,
-            `log: ${logger.path}`,
+            `log: ${logger ? logger.path : "(event log disabled)"}`,
             `counts: ${counts || "(none)"}`,
+            "",
+            `usage (${project}, ttl ${usage.ttlDays}d): ${usageTop || "(none)"}`,
+            `usage file: ${usage.path}`,
             "",
             ...lines,
             "",
