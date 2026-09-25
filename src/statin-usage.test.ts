@@ -3,7 +3,7 @@ import assert from "node:assert/strict"
 import { join } from "node:path"
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
-import { UsageStore } from "./usage.ts"
+import { UsageStore } from "./statin-usage.ts"
 
 const dir = (): string => mkdtempSync(join(tmpdir(), "usage-"))
 

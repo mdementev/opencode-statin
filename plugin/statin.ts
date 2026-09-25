@@ -3,10 +3,10 @@ import type { Event, Part } from "@opencode-ai/sdk"
 import { existsSync, readFileSync } from "node:fs"
 import { homedir } from "node:os"
 import { basename, join } from "node:path"
-import { summarizeEvent } from "../src/events.ts"
-import { JsonlLogger, DEFAULT_MAX_BYTES } from "../src/logfile.ts"
-import { Ring, StatStore } from "../src/store.ts"
-import { DEFAULT_USAGE_TTL_DAYS, UsageStore } from "../src/usage.ts"
+import { summarizeEvent } from "../src/statin-events.ts"
+import { JsonlLogger, DEFAULT_MAX_BYTES } from "../src/statin-logfile.ts"
+import { Ring, StatStore } from "../src/statin-store.ts"
+import { DEFAULT_USAGE_TTL_DAYS, UsageStore } from "../src/statin-usage.ts"
 
 const RECENT_EVENTS = 40
 

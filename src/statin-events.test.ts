@@ -1,7 +1,7 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
 import type { Event } from "@opencode-ai/sdk"
-import { summarizeEvent } from "./events.ts"
+import { summarizeEvent } from "./statin-events.ts"
 
 const ev = (value: unknown): Event => value as Event
 

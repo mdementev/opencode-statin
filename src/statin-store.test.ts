@@ -1,7 +1,7 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
 import type { Event } from "@opencode-ai/sdk"
-import { Ring, StatStore } from "./store.ts"
+import { Ring, StatStore } from "./statin-store.ts"
 
 const ev = (value: unknown): Event => value as Event
 
